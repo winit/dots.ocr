@@ -1,0 +1,148 @@
+Page 1 (Text Layer):
+SNO
+Item Code
+ Vendor Item 
+Code
+Description of Goods
+UOM
+Qty
+Unit Cost
+VAT%
+VAT  Amt
+Disc. Amt
+Amount
+1
+240173
+244001
+Cheese Cheddar Orange Slice 2.27Kg
+PKT/2.27KG
+6.00
+75.00
+5
+22.50
+0.00
+450.00 
+2
+240172
+228016
+Cheese Cheddar Orange Red 5Kg
+PKT/2.27KG
+4.00
+69.00
+5
+13.80
+0.00
+276.00 
+3
+240709
+Pasta Filiz Elbow 24x400gm
+CS/24X400G
+1.00
+72.00
+5
+3.60
+0.00
+72.00 
+Amount excl. Taxes
+798.00
+VAT  @ 5.00%
+39.90
+Grand Total with Tax
+Grand Total in words
+Terms and Condition
+Payment Terms
+Mode of Transport
+Validity
+:
+:
+:
+:
+:
+Cash On Delivery
+PO will not be valid after Delivery Date specified.
+Eight Hundred Thirty Seven UAE Dirham and Ninety  Only.
+837.90
+Total Qty
+11.00
+Please send Statement of Account to payable@ae.tablez.com on 1st of every month.
+This is a Computer Generated Document no signature is required
+Revision No.
+Revision Date
+:
+:
+NA
+08-Jul-25
+Order No.
+Order Date
+:
+:
+11PO18-258768
+06-Jul-25
+Supplier Name & Address  :
+Emirates Snack Foods Llc
+DUBAI UAE    FAX - 04 - 2672563   
+DXB
+ARE
+Billing Address :
+Delivery Address :
+Tablez Food Company LLC
+4th Floor, C Block, Y Tower, Muroor Road, 
+Delma Street
+Abu Dhabi
+AUH
+ARE
+Tablez Central Warehouse
+Dubai Investment Park 2, Next to Gyma 
+Warehouse
+Nishad 0501113889
+Dubai
+DXB
+Phone No
+TRN No
+Currency Code
+Phone No
+TRN No
+Phone No
+TRN No
+:
+:
+:
+:
+:
+:
+:
+055 1122735
+100384419600003
+AED
+100203177900003
+026587863
+100203177900003
+Please mention purchase order number, date, supplier and material codes on 
+all corresponding invoice and challans.
+Vendor No
+Delivery Date
+:
+:
+B00033
+07-Jul-25
+Purchase Order
+Tablez Food Company LLC
+4th Floor, C Block, Y Tower, Muroor Road, Delma Street, Abu Dhabi, Abu 
+Dhabi
+TRN No.
+100203177900003
+ Email
+lateef@esf-uae.com
+:
+
+
+Page 2 (Text Layer):
+Prepared By
+Approved By
+Famous Daves Abu Dhabi 
+Mall FOH
+:
+Famous Daves Abu 
+Dhabi Mall FOH
+:
+Page 2 of 2

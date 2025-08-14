@@ -32,41 +32,16 @@ RUN pip install --no-cache-dir \
     huggingface-hub
 
 # Download and cache the model
-RUN python -c "
-import os
-from huggingface_hub import snapshot_download
+RUN python -c "import os; from huggingface_hub import snapshot_download; \
+print('Downloading dots.ocr model...'); \
+model_path = snapshot_download(repo_id='rednote-hilab/dots.ocr', cache_dir='/tmp/hf_cache', local_dir='/models/DotsOCR', local_dir_use_symlinks=False, revision='main'); \
+print(f'Model downloaded to: {model_path}'); \
+files = os.listdir('/models/DotsOCR'); \
+print(f'Downloaded files: {files[:10]}...'); \
+print('Model download complete')"
 
-print('Downloading dots.ocr model...')
-model_path = snapshot_download(
-    repo_id='${MODEL_NAME}',
-    cache_dir='/tmp/hf_cache',
-    local_dir='${MODEL_PATH}',
-    local_dir_use_symlinks=False,
-    revision='main'
-)
-print(f'Model downloaded to: {model_path}')
-
-# Verify model files exist
-required_files = ['config.json', 'pytorch_model.bin']
-for file in required_files:
-    file_path = os.path.join('${MODEL_PATH}', file)
-    if os.path.exists(file_path):
-        print(f'✓ Found {file}')
-    else:
-        print(f'✗ Missing {file}')
-        # Check for alternative formats
-        if file == 'pytorch_model.bin':
-            safetensors_path = os.path.join('${MODEL_PATH}', 'model.safetensors')
-            if os.path.exists(safetensors_path):
-                print(f'✓ Found model.safetensors instead')
-            else:
-                print(f'✗ No model weights found')
-
-print('Model verification complete')
-"
-
-# Copy verification script
-COPY verify_model.py /app/verify_model.py
+# Copy verification script (from the build context which is deployment/runpod)
+COPY ./verify_model.py /app/verify_model.py
 
 # Verify the model installation
 RUN python /app/verify_model.py
