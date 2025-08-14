@@ -1,0 +1,26 @@
+# Ultra-lightweight configuration for RunPod vLLM worker
+# Just sets environment variables - RunPod handles everything else
+FROM runpod/worker-v1-vllm:stable-cuda12.1.0
+
+# Set environment variables for dots.ocr
+# RunPod's vLLM worker will:
+# 1. Download the model on first request
+# 2. Cache it in network storage
+# 3. Handle all vLLM server operations
+
+ENV MODEL_NAME="rednote-hilab/dots.ocr"
+ENV TRUST_REMOTE_CODE="1"
+ENV MAX_MODEL_LEN="8192"
+ENV GPU_MEMORY_UTILIZATION="0.95"
+ENV TENSOR_PARALLEL_SIZE="1"
+ENV DTYPE="auto"
+ENV ENFORCE_EAGER="0"
+ENV DISABLE_CUSTOM_ALL_REDUCE="0"
+
+# That's it! The base image handles everything else:
+# - Python environment
+# - vLLM installation
+# - Model downloading
+# - Server startup
+# - Health checks
+# - OpenAI API compatibility
