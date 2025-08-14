@@ -32,7 +32,7 @@ RUN pip install --no-cache-dir \
     huggingface-hub
 
 # Download and cache the model
-RUN python -c "import os; from huggingface_hub import snapshot_download; \
+RUN python3 -c "import os; from huggingface_hub import snapshot_download; \
 print('Downloading dots.ocr model...'); \
 model_path = snapshot_download(repo_id='rednote-hilab/dots.ocr', cache_dir='/tmp/hf_cache', local_dir='/models/DotsOCR', local_dir_use_symlinks=False, revision='main'); \
 print(f'Model downloaded to: {model_path}'); \
@@ -44,7 +44,7 @@ print('Model download complete')"
 COPY ./verify_model.py /app/verify_model.py
 
 # Verify the model installation
-RUN python /app/verify_model.py
+RUN python3 /app/verify_model.py
 
 # Set the model path for vLLM
 ENV MODEL=${MODEL_PATH}
