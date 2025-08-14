@@ -1,0 +1,27 @@
+# Lightweight configuration for RunPod vLLM worker
+# This uses RunPod's built-in model downloading at runtime
+FROM runpod/worker-v1-vllm:stable-cuda12.1.0
+
+# Install only essential dependencies for dots.ocr
+RUN pip install --no-cache-dir \
+    flash-attn \
+    einops \
+    qwen_vl_utils
+
+# Set environment variables for dots.ocr
+# RunPod will download the model on first request
+ENV MODEL_NAME="rednote-hilab/dots.ocr"
+ENV TRUST_REMOTE_CODE="1"
+ENV MAX_MODEL_LEN="8192"
+ENV GPU_MEMORY_UTILIZATION="0.95"
+ENV TENSOR_PARALLEL_SIZE="1"
+ENV DTYPE="bfloat16"
+
+# The base image already handles:
+# - Model downloading to network storage
+# - vLLM server startup
+# - Health checks
+# - Request handling
+
+# Note: This requires RunPod network storage to be attached
+# for persistent model storage

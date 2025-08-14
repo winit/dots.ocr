@@ -1,0 +1,52 @@
+# Use RunPod's official vLLM worker base image
+FROM runpod/worker-v1-vllm:stable-cuda12.1.0
+
+# Set environment variables for vLLM to download model at runtime
+ENV MODEL_NAME="rednote-hilab/dots.ocr"
+ENV HF_HUB_CACHE="/runpod-volume/huggingface-cache"
+ENV MODEL_CACHE_DIR="/runpod-volume/models"
+ENV DOWNLOAD_MODEL="1"
+ENV TRUST_REMOTE_CODE="1"
+ENV MAX_MODEL_LEN="8192"
+ENV GPU_MEMORY_UTILIZATION="0.95"
+ENV TENSOR_PARALLEL_SIZE="1"
+ENV DTYPE="auto"
+ENV DISABLE_LOG_STATS="true"
+
+# Install additional dependencies
+RUN pip install --no-cache-dir \
+    transformers>=4.36.0 \
+    torch>=2.1.0 \
+    torchvision \
+    accelerate \
+    protobuf \
+    sentencepiece \
+    tiktoken \
+    einops \
+    flash-attn
+
+# Create startup script that downloads model on first run
+RUN echo '#!/bin/bash\n\
+if [ ! -d "/runpod-volume/models/dots.ocr" ]; then\n\
+  echo "First run - downloading dots.ocr model..."\n\
+  python3 -c "from huggingface_hub import snapshot_download; snapshot_download(\"rednote-hilab/dots.ocr\", cache_dir=\"/runpod-volume/huggingface-cache\", local_dir=\"/runpod-volume/models/dots.ocr\")"\n\
+  echo "Model download complete"\n\
+fi\n\
+export MODEL="/runpod-volume/models/dots.ocr"\n\
+exec python3 -m vllm.entrypoints.openai.api_server \
+  --model /runpod-volume/models/dots.ocr \
+  --trust-remote-code \
+  --max-model-len 8192 \
+  --gpu-memory-utilization 0.95 \
+  --host 0.0.0.0 \
+  --port 8000' > /start.sh && chmod +x /start.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=300s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose the port
+EXPOSE 8000
+
+# Override entrypoint to use our startup script
+ENTRYPOINT ["/start.sh"]

@@ -61,7 +61,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./deployment/runpod
-        file: ./deployment/runpod/Dockerfile.vllm-runpod
+        file: ./deployment/runpod/Dockerfile.vllm-lightweight
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
