@@ -17,11 +17,14 @@ RUN pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.py
 # Copy the project files
 COPY . /app/
 
-# Install dots.ocr
-RUN pip install -e .
+# Install packaging first (required for flash-attn)
+RUN pip install packaging wheel setuptools
 
-# Install RunPod SDK and additional dependencies
-RUN pip install runpod transformers pillow vllm
+# Install dots.ocr dependencies
+RUN pip install PyMuPDF accelerate transformers
+
+# Install RunPod SDK and additional dependencies  
+RUN pip install runpod pillow
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
