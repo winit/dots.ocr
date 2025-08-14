@@ -17,14 +17,20 @@ RUN pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.py
 # Copy the project files
 COPY . /app/
 
-# Install packaging first (required for flash-attn)
+# Install packaging first (required for dependencies)
 RUN pip install packaging wheel setuptools
 
-# Install dots.ocr dependencies
-RUN pip install PyMuPDF accelerate transformers
+# Install OCR and document processing dependencies
+RUN pip install PyMuPDF accelerate transformers pytesseract
+
+# Install the OCR model
+RUN pip install transformers[torch] sentencepiece protobuf
 
 # Install RunPod SDK and additional dependencies  
 RUN pip install runpod pillow
+
+# Pre-download the OCR model during build (optional - speeds up first run)
+# RUN python3 -c "from transformers import AutoModel, AutoTokenizer; AutoTokenizer.from_pretrained('ucaslcl/GOT-OCR2_0', trust_remote_code=True); print('Model cached')"
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
