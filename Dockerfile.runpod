@@ -30,4 +30,4 @@ RUN pip install runpod pillow
 ENV PYTHONUNBUFFERED=1
 ENV MODEL_NAME="rednote-ai/dotsocr-v1.0"
 
-CMD ["python", "-u", "handler.py"]
+CMD ["python3", "-u", "/app/handler.py"]

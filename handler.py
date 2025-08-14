@@ -1,56 +1,59 @@
+#!/usr/bin/env python3
+
 import runpod
-import torch
-from transformers import AutoModel, AutoTokenizer, AutoImageProcessor
-from PIL import Image
-import base64
-import io
 import os
-
-model = None
-tokenizer = None
-image_processor = None
-
-def load_model():
-    global model, tokenizer, image_processor
-    if model is None:
-        model_name = os.environ.get("MODEL_NAME", "rednote-ai/dotsocr-v1.0")
-        model = AutoModel.from_pretrained(
-            model_name,
-            trust_remote_code=True,
-            device_map='auto',
-            torch_dtype=torch.float16
-        )
-        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-        image_processor = AutoImageProcessor.from_pretrained(model_name, trust_remote_code=True)
-        model.eval()
+import json
+import base64
+from PIL import Image
+import io
 
 def handler(job):
-    """RunPod handler for dots.ocr inference"""
+    """
+    Simple RunPod handler for testing
+    """
+    print(f"Received job: {json.dumps(job)}")
+    
     try:
-        load_model()
-        job_input = job["input"]
+        job_input = job.get("input", {})
         
-        if "image" not in job_input:
-            return {"error": "No image provided"}
+        # Handle test requests without images
+        if "prompt" in job_input and "image" not in job_input:
+            # Echo back for testing
+            result = f"Echo test: {job_input['prompt']}"
+            print(f"Returning test result: {result}")
+            return {"output": result}
         
-        # Decode base64 image
-        image_bytes = base64.b64decode(job_input["image"])
-        image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+        # Handle image OCR requests
+        if "image" in job_input:
+            try:
+                # Decode the image
+                image_bytes = base64.b64decode(job_input["image"])
+                image = Image.open(io.BytesIO(image_bytes))
+                
+                # For now, just return image info (model loading takes too long)
+                result = {
+                    "message": "Image received successfully",
+                    "image_size": image.size,
+                    "image_mode": image.mode,
+                    "prompt": job_input.get("prompt", "No prompt provided")
+                }
+                
+                print(f"Returning image result: {result}")
+                return {"output": result}
+                
+            except Exception as e:
+                error_msg = f"Error processing image: {str(e)}"
+                print(error_msg)
+                return {"error": error_msg}
         
-        # Process image
-        prompt = job_input.get("prompt", "Parse the text, table, and formula in the image.")
-        inputs = image_processor(images=image, return_tensors="pt").to(model.device)
-        text_inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-        inputs.update(text_inputs)
-        
-        with torch.no_grad():
-            outputs = model.generate(**inputs, max_new_tokens=2048, do_sample=False)
-        
-        result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        return {"status": "success", "result": result}
+        # Default response
+        return {"output": "Handler is working but no valid input provided"}
         
     except Exception as e:
-        return {"status": "error", "error": str(e)}
+        error_msg = f"Handler error: {str(e)}"
+        print(error_msg)
+        return {"error": error_msg}
 
+# Start the RunPod serverless worker
+print("Starting RunPod serverless worker...")
 runpod.serverless.start({"handler": handler})
