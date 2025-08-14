@@ -1,0 +1,85 @@
+# Use RunPod's official vLLM worker base image
+FROM runpod/worker-v1-vllm:stable-cuda12.1.0
+
+# Set environment variables
+ENV MODEL_NAME="rednote-hilab/dots.ocr"
+ENV MODEL_BASE_PATH="/models"
+ENV MODEL_PATH="/models/DotsOCR"
+ENV TOKENIZER_PATH="/models/DotsOCR"
+ENV QUANTIZATION=""
+ENV DTYPE="auto"
+ENV MAX_MODEL_LEN=8192
+ENV GPU_MEMORY_UTILIZATION=0.95
+ENV MAX_NUM_SEQS=256
+ENV TENSOR_PARALLEL_SIZE=1
+ENV PIPELINE_PARALLEL_SIZE=1
+ENV DISABLE_LOG_STATS=true
+ENV TRUST_REMOTE_CODE=true
+
+# Create model directory
+RUN mkdir -p ${MODEL_PATH}
+
+# Install additional dependencies
+RUN pip install --no-cache-dir \
+    transformers>=4.36.0 \
+    torch>=2.1.0 \
+    torchvision \
+    accelerate \
+    protobuf \
+    sentencepiece \
+    tiktoken \
+    einops \
+    huggingface-hub
+
+# Download and cache the model
+RUN python -c "
+import os
+from huggingface_hub import snapshot_download
+
+print('Downloading dots.ocr model...')
+model_path = snapshot_download(
+    repo_id='${MODEL_NAME}',
+    cache_dir='/tmp/hf_cache',
+    local_dir='${MODEL_PATH}',
+    local_dir_use_symlinks=False,
+    revision='main'
+)
+print(f'Model downloaded to: {model_path}')
+
+# Verify model files exist
+required_files = ['config.json', 'pytorch_model.bin']
+for file in required_files:
+    file_path = os.path.join('${MODEL_PATH}', file)
+    if os.path.exists(file_path):
+        print(f'✓ Found {file}')
+    else:
+        print(f'✗ Missing {file}')
+        # Check for alternative formats
+        if file == 'pytorch_model.bin':
+            safetensors_path = os.path.join('${MODEL_PATH}', 'model.safetensors')
+            if os.path.exists(safetensors_path):
+                print(f'✓ Found model.safetensors instead')
+            else:
+                print(f'✗ No model weights found')
+
+print('Model verification complete')
+"
+
+# Copy verification script
+COPY verify_model.py /app/verify_model.py
+
+# Verify the model installation
+RUN python /app/verify_model.py
+
+# Set the model path for vLLM
+ENV MODEL=${MODEL_PATH}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose the port
+EXPOSE 8000
+
+# The base image already has the proper entrypoint for vLLM
+# No need to override CMD as the base image handles vLLM server startup
